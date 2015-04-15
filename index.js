@@ -5,41 +5,61 @@ var async = require('async');
 var util = require('util');
 
 module.exports = function(driver, scripts) {
-  if (!driver) throw new Error('No db driver supplied. usage: require("stringtree-migrate")(db_driver, scripts);');
-  if (!scripts || 0 === scripts.length) throw new Error('No migration scripts supplied. usage: require("stringtree-migrate")(db_driver, scripts);');
+
+  function give(next, err, value) {
+    console.log('give err=' + err + ' value=' + value);
+    driver.close(function() {
+      console.log('give closing driver');
+      return next(err, value);
+    });
+  }
+
+  function apply(from, to, next) {
+    console.log('apply from=' + from + ' to=' + to);
+    async.forEachSeries(scripts, function(script, done) {
+      console.log('considering script=' + util.inspect(script));
+      if (script.level > from && script.level <= to) {
+        console.log('apply script=' + util.inspect(script));
+        driver.execute(script.up, function(err) {
+          if (err) return next(err);
+          driver.update(script.level, done);
+        });
+      } else {
+        done();
+      }
+    }, function(err) {
+      if (err) return give(next, err);
+      give(next, null, to);
+    });
+  }
   
   return {
-    give: function give(next, err, value) {
-      driver.close(function() {
-        return next(err, value);
-      });
-    },
-
-    apply: function(from, to, next) {
-      async.forEachSeries(scripts, function(script, done) {
-        if (script.level > from && script.level <= to) driver.execute(script.up, done);
-      }, function(err) {
-        if (err) return give(next, err);
-        give(next, null, to);
-      });
-    },
-
     ensure: function ensure(target, next) {
+      var self = this;
+
+      console.log('ensure(' + target + ')');
+      if (!driver) return next(new Error('No db driver supplied. usage: require("stringtree-migrate")(db_driver, scripts);'));
+      if (!scripts || 0 === scripts.length) return next(new Error('No migration scripts supplied. usage: require("stringtree-migrate")(db_driver, scripts);'));
+
       driver.open(function(err) {
         if (err) return next(err);
-        driver.execute('select level from migrations order by level desc', function(err, levels) {
-          if (err || 0 === levels.length) {
-            // assume all errors are 'missing table' for now
-            driver.execute("create table migrations ( level int );", function(err) {
+        driver.check(function(err, present) {
+          if (!present) {
+            console.log('table not present, creating...')
+            driver.create(function(err) {
               if (err) return give(next, err);
-              return apply(0, target, function(err) {
+              apply(0, target, function(err) {
+                give(next, err, target);
+              });
+            });
+          } else {
+            driver.current(function(err, level) {
+              if (err) return next(err);
+              apply(level || 0, target, function(err) {
                 give(next, err, target);
               });
             });
           }
-          apply(levels[0], target, function(err) {
-            give(next, err, target);
-          });
         });
       });
     }
