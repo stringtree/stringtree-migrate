@@ -1,6 +1,6 @@
 current
 -------
-+ document example driver
++ support 'ensure all patches are applied'
 
 sooner
 ------
@@ -25,3 +25,4 @@ done
 + fixed mysql implementation
 2015-04-15
 + support multiple scripts per step
++ document example driver
