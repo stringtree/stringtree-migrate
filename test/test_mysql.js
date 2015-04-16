@@ -71,7 +71,7 @@ test('run a real script', function(t) {
     t.error(err, 'setup should not error');
     migrate.ensure(1, function(err, level) {
       t.error(err, 'ensure should not error');
-      t.equal(1, level, 'should now be at level 1');
+      t.equal(level, 1, 'should now be at level 1');
       driver.execute("show tables like 'ugh'", function(err, tables) {
         t.error(err, 'query should not error');
         t.ok(tables && tables.length > 0, 'created table');
@@ -86,7 +86,7 @@ test('run multiple levels', function(t) {
     t.error(err, 'setup should not error');
     migrate.ensure(2, function(err, level) {
       t.error(err, 'ensure should not error');
-      t.equal(2, level, 'should now be at level 2');
+      t.equal(level, 2, 'should now be at level 2');
       driver.execute("show tables like 'ugh'", function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
         driver.execute("SELECT aa from ugh", function(err, value) {
@@ -104,7 +104,25 @@ test('multiple statements per level', function(t) {
     t.error(err, 'setup should not error');
     migrate.ensure(3, function(err, level) {
       t.error(err, 'ensure should not error');
-      t.equal(3, level, 'should now be at level 3');
+      t.equal(level, 3, 'should now be at level 3');
+      driver.execute("show tables like 'ugh'", function(err, tables) {
+        t.ok(tables && tables.length > 0, 'created table');
+        driver.execute("SELECT aa from ugh order by aa asc", function(err, value) {
+          t.equal(value[0].aa, 3, 'fetched correct updated value');
+          t.equal(value[1].aa, 99, 'fetched correct added value');
+        });
+      });
+    });
+  });
+});
+
+test('ensure all available patches are applied', function(t) {
+  t.plan(6);
+  setup(dfl_scripts, function(err, migrate) {
+    t.error(err, 'setup should not error');
+    migrate.ensure(function(err, level) {
+      t.error(err, 'ensure should not error');
+      t.equal(level, 3, 'should now be at level 3');
       driver.execute("show tables like 'ugh'", function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
         driver.execute("SELECT aa from ugh order by aa asc", function(err, value) {

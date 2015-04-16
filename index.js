@@ -6,13 +6,11 @@ var util = require('util');
 
 module.exports = function(driver, scripts) {
 
-  function give(next, err, value) {
-    return next(err, value);
-  }
-
   function apply(from, to, next) {
+    var hwm;
     async.forEachSeries(scripts, function(script, done) {
-      if (script.level > from && script.level <= to) {
+      if (script.level > from && (to == null || script.level <= to)) {
+        hwm = script.level;
         var statements = Array.isArray(script.up) ? script.up : [ script.up ];
         async.forEachSeries(statements, function(statement, done) {
           driver.execute(statement, function(err) {
@@ -27,7 +25,7 @@ module.exports = function(driver, scripts) {
       }
     }, function(err) {
       if (err) return give(next, err);
-      give(next, null, to);
+      return next(err, hwm || from);
     });
   }
   
@@ -37,6 +35,10 @@ module.exports = function(driver, scripts) {
 
       if (!driver) return next(new Error('No db driver supplied. usage: require("stringtree-migrate")(db_driver, scripts);'));
       if (!scripts || 0 === scripts.length) return next(new Error('No migration scripts supplied. usage: require("stringtree-migrate")(db_driver, scripts);'));
+      if ('function' === typeof(target)) {
+        next = target;
+        target = null;
+      }
 
       driver.open(function(err) {
         if (err) return next(err);
@@ -44,15 +46,15 @@ module.exports = function(driver, scripts) {
           if (!present) {
             driver.create(function(err) {
               if (err) return give(next, err);
-              apply(0, target, function(err) {
-                give(next, err, target);
+              apply(0, target, function(err, level) {
+                next(err, level);
               });
             });
           } else {
             driver.current(function(err, level) {
               if (err) return next(err);
-              apply(level || 0, target, function(err) {
-                give(next, err, target);
+              apply(level || 0, target, function(err, level) {
+                next(err, level);
               });
             });
           }
