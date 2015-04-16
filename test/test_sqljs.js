@@ -16,7 +16,6 @@ function setup(scripts, next) {
     tables[0].values.forEach(function(tg) {
       var table = tg[0];
       var command = "drop table " + table + ";";
-      console.log('setup executing: ' + command);
       db.exec(command);
     });
     var after = db.exec("SELECT name FROM sqlite_master WHERE type='table';");
