@@ -70,7 +70,8 @@ module.exports = function(mysql, credentials) {
     },
     current: function(next) {
       this.execute("select level from migrations order by level desc limit 1", function(err, levels) {
-        next(null, levels[0]);
+        var current = levels[0] || { level: 0 };
+        next(null, current.level);
       });
     },
     update: function(level, next) {

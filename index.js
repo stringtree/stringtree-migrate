@@ -53,9 +53,13 @@ module.exports = function(driver, scripts) {
           } else {
             driver.current(function(err, level) {
               if (err) return next(err);
-              apply(level || 0, target, function(err, level) {
+              if (level < target) {
+                apply(level, target, function(err, level) {
+                  next(err, level);
+                });
+              } else {
                 next(err, level);
-              });
+              }
             });
           }
         });

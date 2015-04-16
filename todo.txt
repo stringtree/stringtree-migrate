@@ -3,8 +3,6 @@ current
 
 sooner
 ------
-+ decouple test credentials
-+ test that migration is not performed if db is already past the desired level 
 
 later
 -----
@@ -26,3 +24,4 @@ done
 + support multiple scripts per step
 + document example driver
 + support 'ensure all patches are applied'
++ decouple test credentials

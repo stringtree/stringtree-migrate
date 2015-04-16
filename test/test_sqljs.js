@@ -23,7 +23,7 @@ function setup(scripts, next) {
   next(null, require('../index')(driver, scripts));
 }
 
-test('complain if no scripts supplied', function(t) {
+test('(sql.js) complain if no scripts supplied', function(t) {
   t.plan(1);
   setup([], function(err, migrate) {
     migrate.ensure(0, function(err, level) {
@@ -32,7 +32,7 @@ test('complain if no scripts supplied', function(t) {
   });
 });
 
-test('create table if not present', function(t) {
+test('(sql.js) create table if not present', function(t) {
   t.plan(2);
   setup(dfl_scripts, function(err, migrate) {
     migrate.ensure(0, function(err, level) {
@@ -42,7 +42,7 @@ test('create table if not present', function(t) {
   });
 });
 
-test('run a real script', function(t) {
+test('(sql.js) run a real script', function(t) {
   t.plan(3);
   setup(dfl_scripts, function(err, migrate) {
     migrate.ensure(1, function(err, level) {
@@ -54,7 +54,7 @@ test('run a real script', function(t) {
   });
 });
 
-test('run multiple scripts', function(t) {
+test('(sql.js) run multiple scripts', function(t) {
   t.plan(4);
   setup(dfl_scripts, function(err, migrate) {
     migrate.ensure(2, function(err, level) {

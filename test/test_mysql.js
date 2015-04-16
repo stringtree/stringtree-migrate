@@ -4,10 +4,10 @@ var async = require('async');
 
 var mysql = require('mysql');
 var credentials = {
-  host     : 'localhost',
-  user     : 'test',
-  password : 'test',
-  database : 'test'
+  host     : process.env.MYSQL_TEST_HOST || 'localhost',
+  user     : process.env.MYSQL_TEST_USER || 'test',
+  password : process.env.MYSQL_TEST_PASSWORD || 'test',
+  database : process.env.MYSQL_TEST_DATABASE || 'test'
 };
 var driver = require('../drivers/driver-for-mysql')(mysql, credentials);
 
@@ -44,7 +44,7 @@ function setup(scripts, next) {
   }
 }
 
-test('complain if no scripts supplied', function(t) {
+test('(mysql) complain if no scripts supplied', function(t) {
   t.plan(2);
   setup([], function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -54,7 +54,7 @@ test('complain if no scripts supplied', function(t) {
   });
 });
 
-test('create table if not present', function(t) {
+test('(mysql) create table if not present', function(t) {
   t.plan(3);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -65,7 +65,7 @@ test('create table if not present', function(t) {
   });
 });
 
-test('run a real script', function(t) {
+test('(mysql) run a real script', function(t) {
   t.plan(5);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -80,7 +80,7 @@ test('run a real script', function(t) {
   });
 });
 
-test('run multiple levels', function(t) {
+test('(mysql) run multiple levels', function(t) {
   t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -98,7 +98,7 @@ test('run multiple levels', function(t) {
   });
 });
 
-test('multiple statements per level', function(t) {
+test('(mysql) multiple statements per level', function(t) {
   t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -116,7 +116,7 @@ test('multiple statements per level', function(t) {
   });
 });
 
-test('ensure all available patches are applied', function(t) {
+test('(mysql) ensure all available patches are applied', function(t) {
   t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -134,7 +134,27 @@ test('ensure all available patches are applied', function(t) {
   });
 });
 
-test('finish off', function(t) {
+test('(mysql) no patches are applied if already beyond', function(t) {
+  t.plan(6);
+  setup(dfl_scripts, function(err, migrate) {
+    t.error(err, 'setup should not error');
+    driver.create(function(err) {
+      t.error(err, 'create should not error');
+      driver.update(4, function(err) {
+        t.error(err, 'update should not error');
+        migrate.ensure(function(err, level) {
+          t.error(err, 'ensure should not error');
+          t.equal(level, 4, 'should now be at level 4');
+          driver.execute("show tables like 'ugh'", function(err, tables) {
+            t.notok(tables && tables.length > 0, 'table not created');
+          });
+        });
+      });
+    });
+  });
+});
+
+test('(mysql) finish off', function(t) {
   driver.close(function(err) {
     t.error(err, 'driver close should not error');
     console.log('closed driver, ending tests');
