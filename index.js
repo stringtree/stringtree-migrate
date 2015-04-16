@@ -7,18 +7,19 @@ var util = require('util');
 module.exports = function(driver, scripts) {
 
   function give(next, err, value) {
-    console.log('give err=' + err + ' value=' + value);
     return next(err, value);
   }
 
   function apply(from, to, next) {
-    console.log('apply from=' + from + ' to=' + to);
     async.forEachSeries(scripts, function(script, done) {
-      console.log('considering script=' + util.inspect(script));
       if (script.level > from && script.level <= to) {
-        console.log('apply script=' + util.inspect(script));
-        driver.execute(script.up, function(err) {
-          if (err) return next(err);
+        var statements = Array.isArray(script.up) ? script.up : [ script.up ];
+        async.forEachSeries(statements, function(statement, done) {
+          driver.execute(statement, function(err) {
+            done(err);
+          });
+        }, function(err) {
+          if (err) done(err);
           driver.update(script.level, done);
         });
       } else {
@@ -41,7 +42,6 @@ module.exports = function(driver, scripts) {
         if (err) return next(err);
         driver.check(function(err, present) {
           if (!present) {
-            console.log('table not present, creating...')
             driver.create(function(err) {
               if (err) return give(next, err);
               apply(0, target, function(err) {

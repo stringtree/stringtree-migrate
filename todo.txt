@@ -1,6 +1,6 @@
 current
 -------
-+ support multiple scripts per step
++ document example driver
 
 sooner
 ------
@@ -23,3 +23,5 @@ done
 + first implementation using sql.js
 + draft implementation using mysql
 + fixed mysql implementation
+2015-04-15
++ support multiple scripts per step

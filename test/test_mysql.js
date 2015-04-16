@@ -18,7 +18,6 @@ var dfl_scripts = [
 ];
 
 function setup(scripts, next) {
-  console.log('setup, open=' + driver.is_open());
   if (!driver.is_open()) {
     driver.open(function(err) {
       if (err) return next(err);
@@ -29,10 +28,8 @@ function setup(scripts, next) {
       if (err) return next(err);
       if (tables && tables.length > 0) {
         async.forEach(tables, function(table, done) {
-          console.log('found table: ' + util.inspect(table));
           var tname = table.Tables_in_test;
           var sql = "drop table " + tname;
-          console.log('sql: ' + sql);
           driver.execute(sql, function(err) {
             done(err);
           });
@@ -50,9 +47,7 @@ function setup(scripts, next) {
 test('complain if no scripts supplied', function(t) {
   t.plan(2);
   setup([], function(err, migrate) {
-    console.log('-- complain, setup called back');
     t.error(err, 'setup should not error');
-    console.log()
     migrate.ensure(0, function(err, level) {
       t.ok(err, 'ensure should complain if no scripts');
     });
@@ -65,7 +60,7 @@ test('create table if not present', function(t) {
     t.error(err, 'setup should not error');
     migrate.ensure(0, function(err, level) {
       t.error(err, 'ensure should not error, even with migrate table missing');
-      t.equal(0, level, 'shoule now be at level 0');
+      t.equal(0, level, 'should now be at level 0');
     });
   });
 });
@@ -76,8 +71,8 @@ test('run a real script', function(t) {
     t.error(err, 'setup should not error');
     migrate.ensure(1, function(err, level) {
       t.error(err, 'ensure should not error');
-      t.equal(1, level, 'shoule now be at level 1');
-      driver.execute("show tables", function(err, tables) {
+      t.equal(1, level, 'should now be at level 1');
+      driver.execute("show tables like 'ugh'", function(err, tables) {
         t.error(err, 'query should not error');
         t.ok(tables && tables.length > 0, 'created table');
       });
@@ -86,16 +81,35 @@ test('run a real script', function(t) {
 });
 
 test('run multiple levels', function(t) {
-  t.plan(5);
+  t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
     migrate.ensure(2, function(err, level) {
       t.error(err, 'ensure should not error');
-      t.equal(2, level, 'shoule now be at level 2');
-      driver.execute("show tables", function(err, tables) {
-        t.ok(tables[0], 'created table');
+      t.equal(2, level, 'should now be at level 2');
+      driver.execute("show tables like 'ugh'", function(err, tables) {
+        t.ok(tables && tables.length > 0, 'created table');
         driver.execute("SELECT aa from ugh", function(err, value) {
+          t.error(err, 'select should not error');
           t.equal(value[0].aa, 2, 'fetched correct stored value');
+        });
+      });
+    });
+  });
+});
+
+test('multiple statements per level', function(t) {
+  t.plan(6);
+  setup(dfl_scripts, function(err, migrate) {
+    t.error(err, 'setup should not error');
+    migrate.ensure(3, function(err, level) {
+      t.error(err, 'ensure should not error');
+      t.equal(3, level, 'should now be at level 3');
+      driver.execute("show tables like 'ugh'", function(err, tables) {
+        t.ok(tables && tables.length > 0, 'created table');
+        driver.execute("SELECT aa from ugh order by aa asc", function(err, value) {
+          t.equal(value[0].aa, 3, 'fetched correct updated value');
+          t.equal(value[1].aa, 99, 'fetched correct added value');
         });
       });
     });
