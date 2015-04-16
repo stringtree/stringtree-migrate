@@ -1,0 +1,25 @@
+current
+-------
++ support multiple scripts per step
+
+sooner
+------
++ decouple credentials
++ test that migration is not performed if db is already past the desired level 
+
+later
+-----
+
+maybe
+-----
+
+never
+-----
+
+done
+----
+2015-04-14
++ project setup
++ first implementation using sql.js
++ draft implementation using mysql
++ fixed mysql implementation

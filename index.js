@@ -8,10 +8,7 @@ module.exports = function(driver, scripts) {
 
   function give(next, err, value) {
     console.log('give err=' + err + ' value=' + value);
-    driver.close(function() {
-      console.log('give closing driver');
-      return next(err, value);
-    });
+    return next(err, value);
   }
 
   function apply(from, to, next) {
@@ -37,7 +34,6 @@ module.exports = function(driver, scripts) {
     ensure: function ensure(target, next) {
       var self = this;
 
-      console.log('ensure(' + target + ')');
       if (!driver) return next(new Error('No db driver supplied. usage: require("stringtree-migrate")(db_driver, scripts);'));
       if (!scripts || 0 === scripts.length) return next(new Error('No migration scripts supplied. usage: require("stringtree-migrate")(db_driver, scripts);'));
 
