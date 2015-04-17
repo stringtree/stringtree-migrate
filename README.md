@@ -40,26 +40,28 @@ Stringtree Migrate has none of these problems.
  var driver = require('stringtree-migrate-driver-mysql')(mysql, credentials);
  var migrate = require('stringtree-migrate')(driver, scripts);
  ...
- migrate.ensure(23, function(err, level) {.. code that needs the db ..}); // ensure database is at level 23 or greater
+ // ensure database is at level 23 or greater
+ migrate.ensure(23, function(err, level) {.. code that needs the db ..});
   or
- migrate.ensure(function(err, level) {.. code that needs the db ..}); // ensure database has had all available updates applied
+ // ensure database has had all available updates applied
+ migrate.ensure(function(err, level) {.. code that needs the db ..});
 ```
 
 ## Drivers
 
 A driver is a node module which implements the Stringtree Migrate driver API. This API is designed to keep the Stringtree Migrate code as simple and clean as possible, and to keep out of the way of any and all database-specific features. An detailed annotated example is given in stringtree-migrate-driver-mysql.js, but as an introduction, the API includes the following methods:
 
-* methods to manage a connection with the db
+### methods to manage a connection with the db
   Note that the three methods 'open', 'close' and 'is_open' form a set:
   'open' will be called by the migrator (if 'is_open' returns untrue) before any calls to 'execute' etc.
-  'close' is left for the client code to call at the end of the application, if required by the db
+  'close' is left for the client code to call at the end of the application, if required by the db.
   If you implement your own, make sure that open and close always set whatever is used by 'is_open'
 
-  open: function(next function(err))
-  close: function(next function(err))
-  is_open: function() returns true or false
+    open: function(next function(err))
+    close: function(next function(err))
+    is_open: function() returns true or false
 
-* methods to manage the migrations table:
+### methods to manage the migrations table:
   This table is important, but only used by code in this driver. The main migration code only interacts with this table through the following four methods:
   'check' tests if the table exists already
   'create' creates a fresh table
@@ -72,19 +74,19 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
    * you don't even have to store it in the same database if that would be inconvenient!
    * it is _strongly_ recommended, however, that this should contain a column wide enough for a system timestamp, as using a timestamp as a migration 'level' is a common pattern
 
-  check: function(next: function(err, truthy value))
-  create: function(next: function(err))
-  current: function(next: function(err, level))
-  update: function(level, next: function(err))
+    check: function(next: function(err, truthy value))
+    create: function(next: function(err))
+    current: function(next: function(err, level))
+    update: function(level, next: function(err))
 
-* method to execute a migration step to adjust the database
+### method to execute a migration step to adjust the database
   This can be called in two ways:
   * execute(sql, params, next)
   * execute(sql, next)
 
   Typically the first form is used within this driver for table management etc., while the second form is used when the main migration code applies migration scripts. Stringtree Migrate does not mandate any particular format for the script or the parameters, that is up to the driver code to help make driver coding simpler by avoiding tedious format conversion. Likewise, any response value can be whatever the driver code chooses to give back.
 
-  execute: function(script, params, next: function(err, response))
+    execute: function(script, params, next: function(err, response))
 
 ### Configuration
 
