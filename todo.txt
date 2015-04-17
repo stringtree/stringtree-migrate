@@ -3,12 +3,15 @@ current
 
 sooner
 ------
++ utility code to read steps from files
++ (mysql) perform each level in a transaction
 
 later
 -----
 
 maybe
 -----
++ dry-run option
 
 never
 -----

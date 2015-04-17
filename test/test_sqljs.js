@@ -3,7 +3,7 @@ var util = require('util');
 
 var sqljs = require('sql.js');
 var db = new sqljs.Database();
-var driver = require('../drivers/driver-for-sqljs')(db);
+var driver = require('../drivers/stringtree-migrate-driver-sqljs')(db);
 
 var dfl_scripts = [
   { level: 1, up: 'create table ugh ( aa int );' },

@@ -4,12 +4,13 @@ var async = require('async');
 
 var mysql = require('mysql');
 var credentials = {
-  host     : process.env.MYSQL_TEST_HOST || 'localhost',
-  user     : process.env.MYSQL_TEST_USER || 'test',
+  host     : process.env.MYSQL_TEST_HOST     || 'localhost',
+  port     : process.env.MYSQL_TEST_PORT     || 3306,
+  user     : process.env.MYSQL_TEST_USER     || 'test',
   password : process.env.MYSQL_TEST_PASSWORD || 'test',
   database : process.env.MYSQL_TEST_DATABASE || 'test'
 };
-var driver = require('../drivers/driver-for-mysql')(mysql, credentials);
+var driver = require('../drivers/stringtree-migrate-driver-mysql')(mysql, credentials);
 
 var dfl_scripts = [
   { level: 1, up: 'create table ugh ( aa int )' },
