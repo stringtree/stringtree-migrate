@@ -4,14 +4,17 @@ current
 sooner
 ------
 + utility code to read steps from files
++ (mysql) open/close connection properly
 + (mysql) perform each level in a transaction
 
 later
 -----
++ split off mysql driver to its own module
 
 maybe
 -----
 + dry-run option
++ downgrade
 
 never
 -----
