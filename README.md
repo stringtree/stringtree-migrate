@@ -57,11 +57,11 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
   'close' is left for the client code to call at the end of the application, if required by the db.
   If you implement your own, make sure that open and close always set whatever is used by 'is_open'
 
-    open: function(next function(err))
-    close: function(next function(err))
-    is_open: function() returns true or false
+	open: function(next function(err))
+	close: function(next function(err))
+	is_open: function() returns true or false
 
-### methods to manage the migrations table:
+### methods to manage the migrations table
   This table is important, but only used by code in this driver. The main migration code only interacts with this table through the following four methods:
   'check' tests if the table exists already
   'create' creates a fresh table
@@ -74,19 +74,19 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
    * you don't even have to store it in the same database if that would be inconvenient!
    * it is _strongly_ recommended, however, that this should contain a column wide enough for a system timestamp, as using a timestamp as a migration 'level' is a common pattern
 
-    check: function(next: function(err, truthy value))
-    create: function(next: function(err))
-    current: function(next: function(err, level))
-    update: function(level, next: function(err))
+	check: function(next: function(err, truthy value))
+	create: function(next: function(err))
+	current: function(next: function(err, level))
+	update: function(level, next: function(err))
 
-### method to execute a migration step to adjust the database
+### method to execute a migration step
   This can be called in two ways:
   * execute(sql, params, next)
   * execute(sql, next)
 
-  Typically the first form is used within this driver for table management etc., while the second form is used when the main migration code applies migration scripts. Stringtree Migrate does not mandate any particular format for the script or the parameters, that is up to the driver code to help make driver coding simpler by avoiding tedious format conversion. Likewise, any response value can be whatever the driver code chooses to give back.
+  Typically the first form is used within a driver for table management etc., while the second form is used when the main migration code applies migration scripts. Stringtree Migrate does not mandate any particular format for the script or the parameters, that is up to the driver code, avoiding tedious format conversion. Likewise, the response value can be whatever the driver code chooses to give back.
 
-    execute: function(script, params, next: function(err, response))
+	execute: function(script, params, next: function(err, response))
 
 ### Configuration
 
