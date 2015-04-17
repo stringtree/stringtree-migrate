@@ -1,32 +1,25 @@
 var util = require('util');
 
 module.exports = function(db) {
+  function execute(sql, params, next) {
+    var ret;
+    var stmt = db.prepare(sql, params);
+    if (stmt.step()) {
+      ret = stmt.getAsObject();
+    }
+    next(null, ret);
+  }
+
   return {
     open: function(next) { next(null); },
     close: function(next) { next(null); },
     check: function(next) {
-      var tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='migrations';");
-      if (!tables) return next(new Error('could not read table data from db'));
-      next(null, tables[0]);
+      var tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='migrations'");
+      next(null, tables && tables.length > 0);
     },
-    create: function(next) { this.execute("create table migrations ( level int );", next)},
-    current: function(next) {
-      var levels = db.exec("select level from migrations order by level desc;");
-      next(null, levels[0]);
-    },
-    update: function(level, next) { this.execute("insert into migrations (level) values ($level);", { $level: level }, next)},
-    execute: function(sql, params, next) {
-      var ret;
-      if ('function' == typeof(params)) {
-        ret = db.exec(sql);
-        next = params;
-      } else {
-        var stmt = db.prepare(sql, params);
-        if (stmt.step()) {
-          ret = stmt.getAsObject();
-        }
-      }
-      next(null, ret)
-    }
+    create: function(next) { next(null, db.exec("create table migrations ( level int )")); },
+    current: function(next) { next(null, db.exec("select level from migrations order by level desc")[0]); },
+    update: function(level, next) { execute("insert into migrations (level) values ($level)", { $level: level }, next)},
+    execute: function(sql, next) { next(null,  db.exec(sql)); }
   };
 };
