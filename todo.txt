@@ -1,17 +1,17 @@
 current
 -------
++ split off mysql driver to its own module
 
 sooner
 ------
-+ utility code to read steps from files
-+ (mysql) perform each level in a transaction
 
 later
 -----
-+ split off mysql driver to its own module
 
 maybe
 -----
++ utility code to read steps from files
++ perform each level in a transaction?
 + dry-run option
 + downgrade
 
@@ -33,3 +33,4 @@ done
 + test that migration is not performed if db is already past the desired level
 2015-04-22
 + (mysql) open/close connection properly
++ (mysql) use connection pooling
