@@ -54,10 +54,10 @@ Stringtree Migrate has none of these problems.
  var migrate = require('stringtree-migrate')(driver, scripts);
  ...
  // ensure database is at level 23 or greater
- migrate.ensure(23, function(err, level) {.. code that needs the db ..});
+ migrate.ensure(23, function(err, level, next) { .. code that needs the db ..; next(); });
   or
  // ensure database has had all available updates applied
- migrate.ensure(function(err, level) {.. code that needs the db ..});
+ migrate.ensure(function(err, level, next) { .. code that needs the db ..; next(); });
 ```
 
 ## What Stringtree Migrate _does not_ do
@@ -72,14 +72,12 @@ The aim of this software is to transparently and simply support the great majori
 A driver is a node module which implements the Stringtree Migrate driver API. This API is designed to keep the Stringtree Migrate code as simple and clean and free of database-specifics as possible. A detailed annotated example is given in _stringtree-migrate-driver-mysql_, but as an introduction, the API includes the following methods:
 
 ### Methods to manage a connection with the db
-  Note that the three methods **open**, **close** and **is_open** form a set.
-  **open** will be called by the migrator (if **is_open** returns a falsy value) before any calls to **execute** etc.
-  **close** is left for the client code to call at the end of the application, if required by the db.
-  If you implement your own driver, make sure that open and close always set whatever is used by 'is_open'
+  Note that the two methods **open** and **close** form a set.
+  **open** will be called by the migrator before any calls to **execute** etc.
+  **close** will be called by the migrator when the 'next' callback from **ensure** is invoked
 ```
 	open: function(next: function(err))
 	close: function(next: function(err))
-	is_open: function() returns true or false
 ```
 
 ### Methods to manage the migration history
@@ -87,8 +85,7 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
 
   The main migration code only interacts with the migration history through four methods: **check** tests if the table exists already, **create** creates a fresh table, **current** determines the current migration level, **update** sets the current migration level after a script is applied.
 
-   This separation leaves you free to implement this how you like, as long as it obeys the
-   semantics of the four calls. In particular:
+   This separation leaves you free to implement this how you like, as long as it obeys the semantics of the four calls. In particular:
    * feel free to use db-specific features or add extra data if you like
    * you don't even have to store it in the same database if that would be inconvenient!
    * it is _strongly_ recommended, however, that the storage of current level should have enough range for a system timestamp, as using a timestamp as a migration level is a common pattern.
@@ -109,4 +106,4 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
 
 The main Stringtree Migrate code does not need any configuration, other than setting up the correct driver and scripts to pass in to the migrator.
 
-At the moment, the built-in unit tests require a running mysql instance and some environment variables to tell the tests how to connect to the database. It is intended that both the mysql driver and the tests will soon be separated into their own module.
+At the moment, the built-in unit tests require a running mysql instance and some environment variables to tell the tests how to connect to the database. It is intended that both the mysql driver and its tests will soon be separated into their own module.

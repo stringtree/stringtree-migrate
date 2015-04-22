@@ -24,7 +24,7 @@ module.exports = function(driver, scripts) {
         done();
       }
     }, function(err) {
-      if (err) return give(next, err);
+      if (err) return next(err);
       return next(err, hwm || from);
     });
   }
@@ -40,14 +40,21 @@ module.exports = function(driver, scripts) {
         target = null;
       }
 
+      function finish(next) {
+        driver.close(function(err) {
+          if (next) next(err);
+        });
+      }
+
       driver.open(function(err) {
-        if (err) return next(err);
+        if (err) next(err);
+
         driver.check(function(err, present) {
           if (!present) {
             driver.create(function(err) {
-              if (err) return give(next, err);
+              if (err) return give(err);
               apply(0, target, function(err, level) {
-                next(err, level);
+                next(err, level, finish);
               });
             });
           } else {
@@ -55,10 +62,10 @@ module.exports = function(driver, scripts) {
               if (err) return next(err);
               if (level < target) {
                 apply(level, target, function(err, level) {
-                  next(err, level);
+                  next(err, level, finish);
                 });
               } else {
-                next(err, level);
+                next(err, level, finish);
               }
             });
           }

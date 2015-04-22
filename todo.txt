@@ -4,7 +4,6 @@ current
 sooner
 ------
 + utility code to read steps from files
-+ (mysql) open/close connection properly
 + (mysql) perform each level in a transaction
 
 later
@@ -32,3 +31,5 @@ done
 + support 'ensure all patches are applied'
 + decouple test credentials
 + test that migration is not performed if db is already past the desired level
+2015-04-22
++ (mysql) open/close connection properly
