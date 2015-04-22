@@ -60,12 +60,6 @@ function setup(scripts, next) {
   });
 }
 
-//test('(mysql) open driver', function(t) {
-//  driver.open(function(err) {
-//    t.end();
-//  });
-//});
-
 test('(mysql) complain if no scripts supplied', function(t) {
   t.plan(2);
   setup([], function(err, migrate) {
@@ -182,9 +176,3 @@ test('(mysql) no patches are applied if already beyond', function(t) {
   });
 });
 
-
-//test('(mysql) close driver', function(t) {
-//  driver.close(function(err) {
-//    t.end();
-//  });
-//});
