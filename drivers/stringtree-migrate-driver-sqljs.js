@@ -16,13 +16,17 @@ module.exports = function(db) {
   return {
     open: function(next) { next(null); },
     close: function(next) { next(null); },
+    _check_sql: "SELECT name FROM sqlite_master WHERE type='table' AND name='migrations'",
     check: function(next) {
-      var tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='migrations'");
+      var tables = db.exec(this._check_sql);
       next(null, tables && tables.length > 0);
     },
-    create: function(next) { next(null, db.exec("create table migrations ( level int )")); },
-    current: function(next) { next(null, db.exec("select level from migrations order by level desc")[0]); },
-    update: function(level, next) { execute("insert into migrations (level) values ($level)", { $level: level }, next)},
+    _create_sql: "create table migrations ( level int )",
+    create: function(next) { next(null, db.exec(this._create_sql)); },
+    _current_sql: "select level from migrations order by level desc",
+    current: function(next) { next(null, db.exec(this._current_sql)[0]); },
+    _update_sql: "insert into migrations (level) values ($level)",
+    update: function(level, next) { execute(this._update_sql, { $level: level }, next)},
     execute: function(sql, next) { next(null,  db.exec(sql)); }
   };
 };

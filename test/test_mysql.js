@@ -21,6 +21,9 @@ var dfl_scripts = [
   { level: 3, up: [ 'update ugh set aa=3 where aa=2', 'insert into ugh (aa) values (99)' ] }
 ];
 
+var dname = "mysql";
+var sql_check_table = "show tables like 'ugh'";
+
 function db(sql, params, next) {
   var connection = mysql.createConnection(credentials);
   connection.connect(function(err) {
@@ -60,7 +63,7 @@ function setup(scripts, next) {
   });
 }
 
-test('(mysql) complain if no scripts supplied', function(t) {
+test('(' + dname + ') complain if no scripts supplied', function(t) {
   t.plan(2);
   setup([], function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -70,7 +73,7 @@ test('(mysql) complain if no scripts supplied', function(t) {
   });
 });
 
-test('(mysql) create table if not present', function(t) {
+test('(' + dname + ') create table if not present', function(t) {
   t.plan(3);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -82,7 +85,7 @@ test('(mysql) create table if not present', function(t) {
   });
 });
 
-test('(mysql) run a real script', function(t) {
+test('(' + dname + ') run a real script', function(t) {
   t.plan(5);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -90,7 +93,7 @@ test('(mysql) run a real script', function(t) {
       t.error(err, 'ensure should not error');
       t.equal(level, 1, 'should now be at level 1');
       next();
-      db("show tables like 'ugh'", function(err, tables) {
+      db(sql_check_table, function(err, tables) {
         t.error(err, 'query should not error');
         t.ok(tables && tables.length > 0, 'created table');
       });
@@ -98,7 +101,7 @@ test('(mysql) run a real script', function(t) {
   });
 });
 
-test('(mysql) run multiple levels', function(t) {
+test('(' + dname + ') run multiple levels', function(t) {
   t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -106,7 +109,7 @@ test('(mysql) run multiple levels', function(t) {
       t.error(err, 'ensure should not error');
       t.equal(level, 2, 'should now be at level 2');
       next();
-      db("show tables like 'ugh'", function(err, tables) {
+      db(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
         db("SELECT aa from ugh", function(err, value) {
           t.error(err, 'select should not error');
@@ -117,7 +120,7 @@ test('(mysql) run multiple levels', function(t) {
   });
 });
 
-test('(mysql) multiple statements per level', function(t) {
+test('(' + dname + ') multiple statements per level', function(t) {
   t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -125,7 +128,7 @@ test('(mysql) multiple statements per level', function(t) {
       t.error(err, 'ensure should not error');
       t.equal(level, 3, 'should now be at level 3');
       next();
-      db("show tables like 'ugh'", function(err, tables) {
+      db(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
         db("SELECT aa from ugh order by aa asc", function(err, value) {
           t.equal(value[0].aa, 3, 'fetched correct updated value');
@@ -136,7 +139,7 @@ test('(mysql) multiple statements per level', function(t) {
   });
 });
 
-test('(mysql) ensure all available patches are applied', function(t) {
+test('(' + dname + ') ensure all available patches are applied', function(t) {
   t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -144,7 +147,7 @@ test('(mysql) ensure all available patches are applied', function(t) {
       t.error(err, 'ensure should not error');
       t.equal(level, 3, 'should now be at level 3');
       next();
-      db("show tables like 'ugh'", function(err, tables) {
+      db(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
         db("SELECT aa from ugh order by aa asc", function(err, value) {
           t.equal(value[0].aa, 3, 'fetched correct updated value');
@@ -155,7 +158,7 @@ test('(mysql) ensure all available patches are applied', function(t) {
   });
 });
 
-test('(mysql) no patches are applied if already beyond', function(t) {
+test('(' + dname + ') no patches are applied if already beyond', function(t) {
   t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
@@ -167,7 +170,7 @@ test('(mysql) no patches are applied if already beyond', function(t) {
           t.error(err, 'ensure should not error');
           t.equal(level, 4, 'should now be at level 4');
           next();
-          db("show tables like 'ugh'", function(err, tables) {
+          db(sql_check_table, function(err, tables) {
             t.notok(tables && tables.length > 0, 'table not created');
           });
         });

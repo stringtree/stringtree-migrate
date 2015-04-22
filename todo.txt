@@ -34,3 +34,4 @@ done
 2015-04-22
 + (mysql) open/close connection properly
 + (mysql) use connection pooling
++ (sqljs) updated internal tests with full test suite
