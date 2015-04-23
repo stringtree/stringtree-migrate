@@ -40,32 +40,42 @@ module.exports = function(driver, scripts) {
         target = null;
       }
 
-      function finish(next) {
-        driver.close(function(err) {
-          if (next) next(err);
-        });
-      }
-
       driver.open(function(err) {
-        if (err) next(err);
+        if (err && next) next(err);
 
         driver.check(function(err, present) {
           if (!present) {
             driver.create(function(err) {
-              if (err) return give(err);
-              apply(0, target, function(err, level) {
-                next(err, level, finish);
-              });
+              if (err) {
+                driver.close(function(err) {
+                  if (next) next(err);
+                });
+              } else {
+                apply(0, target, function(err, level) {
+                  driver.close(function(err) {
+                    if (next) next(err, level);
+                  });
+                });
+              }
             });
           } else {
             driver.current(function(err, level) {
-              if (err) return next(err);
-              if (level < target) {
-                apply(level, target, function(err, level) {
-                  next(err, level, finish);
+              if (err) {
+                driver.close(function(err) {
+                  if (next) next(err);
                 });
               } else {
-                next(err, level, finish);
+                if (level < target) {
+                  apply(level, target, function(err, level) {
+                    driver.close(function(err) {
+                      if (next) next(err, level);
+                    });
+                  });
+                } else {
+                  driver.close(function(err) {
+                    if (next) next(err, level);
+                  });
+                }
               }
             });
           }

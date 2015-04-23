@@ -59,10 +59,9 @@ test('(' + dname + ') create table if not present', function(t) {
   t.plan(3);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
-    migrate.ensure(0, function(err, level, next) {
+    migrate.ensure(0, function(err, level) {
       t.error(err, 'ensure should not error, even with migrate table missing');
       t.equal(0, level, 'should now be at level 0');
-      next();
     });
   });
 });
@@ -71,10 +70,9 @@ test('(' + dname + ') run a real script', function(t) {
   t.plan(5);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
-    migrate.ensure(1, function(err, level, next) {
+    migrate.ensure(1, function(err, level) {
       t.error(err, 'ensure should not error');
       t.equal(level, 1, 'should now be at level 1');
-      next();
       db(sql_check_table, function(err, tables) {
         t.error(err, 'query should not error');
         t.ok(tables && tables.length > 0, 'created table');
@@ -87,10 +85,9 @@ test('(' + dname + ') run multiple levels', function(t) {
   t.plan(6);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
-    migrate.ensure(2, function(err, level, next) {
+    migrate.ensure(2, function(err, level) {
       t.error(err, 'ensure should not error');
       t.equal(level, 2, 'should now be at level 2');
-      next();
       db(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
         db("SELECT aa from ugh", function(err, value) {
@@ -106,10 +103,9 @@ test('(' + dname + ') multiple statements per level', function(t) {
   t.plan(7);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
-    migrate.ensure(3, function(err, level, next) {
+    migrate.ensure(3, function(err, level) {
       t.error(err, 'ensure should not error');
       t.equal(level, 3, 'should now be at level 3');
-      next();
       db(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
         db("SELECT aa from ugh order by aa asc", function(err, value) {
@@ -126,10 +122,9 @@ test('(' + dname + ') ensure all available patches are applied', function(t) {
   t.plan(7);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
-    migrate.ensure(function(err, level, next) {
+    migrate.ensure(function(err, level) {
       t.error(err, 'ensure should not error');
       t.equal(level, 3, 'should now be at level 3');
-      next();
       db(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
         db("SELECT aa from ugh order by aa asc", function(err, value) {
@@ -150,9 +145,8 @@ test('(' + dname + ') no patches are applied if already beyond', function(t) {
       t.error(err, 'create should not error');
       db(driver._update_sql, { $level: 4 }, function(err) {
         t.error(err, 'update should not error');
-        migrate.ensure(function(err, level, next) {
+        migrate.ensure(function(err, level) {
           t.error(err, 'ensure should not error');
-          next();
           db(driver._current_sql, function(err, values) {
             t.error(err, 'get current should not error');
             t.equal(values[0][0], 4, 'should now be at level 4');

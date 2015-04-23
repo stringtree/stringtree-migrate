@@ -1,6 +1,5 @@
 current
 -------
-+ split off mysql driver to its own module
 
 sooner
 ------
@@ -35,3 +34,5 @@ done
 + (mysql) open/close connection properly
 + (mysql) use connection pooling
 + (sqljs) updated internal tests with full test suite
+2015-04-23
++ split off mysql driver to its own module

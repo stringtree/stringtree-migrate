@@ -1,6 +1,6 @@
 {
   "name": "stringtree-migrate",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Database-agnostic migration utility.",
   "main": "index.js",
   "scripts": {
@@ -11,8 +11,7 @@
   },
   "devDependencies": {
     "tape": "^3.0.0",
-    "sql.js": "~0.2.21",
-    "mysql": "2.5.4"
+    "sql.js": "~0.2.21"
   },
   "license": "Apache-2.0",
   "repository": {

@@ -1,2 +1,2 @@
-require('./test_sqljs');
-require('./test_mysql');
+require('./test_using_sqljs');
+

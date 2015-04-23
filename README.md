@@ -8,8 +8,6 @@ A simple, flexible, database-independent, way to manage automated schema updates
 
 ## Usage Example:
 ```js
- var mysql = require('mysql');
-
  var credentials = {
    host: 'localhost', port: 3306,
    database: 'test', user: 'uu', password: 'pp'
@@ -23,21 +21,19 @@ A simple, flexible, database-independent, way to manage automated schema updates
    }
  ];
 
- var driver = require('stringtree-migrate-driver-mysql')(mysql, credentials);
+ var driver = require('stringtree-migrate-driver-mysql')(credentials);
  var migrate = require('stringtree-migrate')(driver, scripts);
  ...
  // ensure database is at level 23 or greater
- migrate.ensure(23, function(err, level, next) {
+ migrate.ensure(23, function(err, level) {
    .. code that needs the db ..;
-   next();
  });
  
  ..or
   
  // ensure database has had all available updates applied
- migrate.ensure(function(err, level, next) {
+ migrate.ensure(function(err, level) {
    .. code that needs the db ..;
-   next(); 
  });
 ```
 ## The Problem
@@ -82,7 +78,7 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
 ### Methods to manage a connection with the db
   Note that the two methods **open** and **close** form a set.
   **open** will be called by the migrator before any calls to **execute** etc.
-  **close** will be called by the migrator when the 'next' callback from **ensure** is invoked
+  **close** will be called by the migrator after any calls to **execute** etc, just before the 'next' callback is invoked.
 ```
 	open: function(next: function(err))
 	close: function(next: function(err))
@@ -115,3 +111,7 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
 The main Stringtree Migrate code does not need any configuration, other than setting up the correct driver and scripts to pass in to the migrator.
 
 At the moment, the built-in unit tests require a running mysql instance and some environment variables to tell the tests how to connect to the database. It is intended that both the mysql driver and its tests will soon be separated into their own module.
+
+### Related resources
+
+* https://github.com/stringtree/stringtree-migrate-driver-mysql
