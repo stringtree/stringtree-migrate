@@ -5,25 +5,25 @@ var test = require('tape');
 var util = require('util');
 
 var sqljs = require('sql.js');
-var sqljs = new sqljs.Database();
-var driver = require('../drivers/stringtree-migrate-driver-sqljs')(sqljs);
+var db = new sqljs.Database();
+var driver = require('../drivers/stringtree-migrate-driver-sqljs')({ database: db });
 
 var dfl_scripts = [
-  { level: 1, up: 'create table ugh ( aa int )' },
-  { level: 2, up: 'insert into ugh (aa) values (2)' },
-  { level: 3, up: [ 'update ugh set aa=3 where aa=2', 'insert into ugh (aa) values (99)' ] }
+  { level: 1, up: 'create table st_ugh ( aa int )' },
+  { level: 2, up: 'insert into st_ugh (aa) values (2)' },
+  { level: 3, up: [ 'update st_ugh set aa=3 where aa=2', 'insert into st_ugh (aa) values (99)' ] }
 ];
 
 var dname = "sql.js";
-var sql_check_table = "SELECT name FROM sqlite_master WHERE type='table' and name='ugh'";
+var sql_check_table = "SELECT name FROM sqlite_master WHERE type='table' and name='st_ugh'";
 
-function db(sql, params, next) {
+function q(sql, params, next) {
   var ret;
   if ('function' == typeof(params)) {
     next = params;
-    ret = sqljs.exec(sql);
+    ret = db.exec(sql);
   } else {
-    var stmt = sqljs.prepare(sql, params);
+    var stmt = db.prepare(sql, params);
     if (stmt.step()) {
       ret = stmt.getAsObject();
     }
@@ -33,14 +33,15 @@ function db(sql, params, next) {
 }
 
 function setup(scripts, next) {
-  var tables = sqljs.exec("SELECT name FROM sqlite_master WHERE type='table';");
+  var tables = db.exec("SELECT name FROM sqlite_master WHERE type='table';");
   if (tables[0]) {
     tables[0].values.forEach(function(tg) {
       var table = tg[0];
-      var command = "drop table " + table + ";";
-      sqljs.exec(command);
+      if (table.match(/^st_/)) {
+        var command = "drop table " + table + ";";
+        db.exec(command);
+      }
     });
-    var after = sqljs.exec("SELECT name FROM sqlite_master WHERE type='table';");
   }
   next(null, require('../index')(driver, scripts));
 }
@@ -73,7 +74,7 @@ test('(' + dname + ') run a real script', function(t) {
     migrate.ensure(1, function(err, level) {
       t.error(err, 'ensure should not error');
       t.equal(level, 1, 'should now be at level 1');
-      db(sql_check_table, function(err, tables) {
+      q(sql_check_table, function(err, tables) {
         t.error(err, 'query should not error');
         t.ok(tables && tables.length > 0, 'created table');
       });
@@ -88,9 +89,9 @@ test('(' + dname + ') run multiple levels', function(t) {
     migrate.ensure(2, function(err, level) {
       t.error(err, 'ensure should not error');
       t.equal(level, 2, 'should now be at level 2');
-      db(sql_check_table, function(err, tables) {
+      q(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
-        db("SELECT aa from ugh", function(err, value) {
+        q("SELECT aa from st_ugh", function(err, value) {
           t.error(err, 'select should not error');
           t.equal(value[0][0], 2, 'fetched correct stored value');
         });
@@ -106,9 +107,9 @@ test('(' + dname + ') multiple statements per level', function(t) {
     migrate.ensure(3, function(err, level) {
       t.error(err, 'ensure should not error');
       t.equal(level, 3, 'should now be at level 3');
-      db(sql_check_table, function(err, tables) {
+      q(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
-        db("SELECT aa from ugh order by aa asc", function(err, value) {
+        q("SELECT aa from st_ugh order by aa asc", function(err, value) {
           t.equal(value.length, 2, 'fetched correct number of rows');
           t.equal(value[0][0], 3, 'fetched correct updated value');
           t.equal(value[1][0], 99, 'fetched correct added value');
@@ -125,9 +126,9 @@ test('(' + dname + ') ensure all available patches are applied', function(t) {
     migrate.ensure(function(err, level) {
       t.error(err, 'ensure should not error');
       t.equal(level, 3, 'should now be at level 3');
-      db(sql_check_table, function(err, tables) {
+      q(sql_check_table, function(err, tables) {
         t.ok(tables && tables.length > 0, 'created table');
-        db("SELECT aa from ugh order by aa asc", function(err, value) {
+        q("SELECT aa from st_ugh order by aa asc", function(err, value) {
           t.equal(value.length, 2, 'fetched correct number of rows');
           t.equal(value[0][0], 3, 'fetched correct updated value');
           t.equal(value[1][0], 99, 'fetched correct added value');
@@ -141,16 +142,16 @@ test('(' + dname + ') no patches are applied if already beyond', function(t) {
   t.plan(7);
   setup(dfl_scripts, function(err, migrate) {
     t.error(err, 'setup should not error');
-    db(driver._create_sql, function(err) {
+    q(driver._create_sql, function(err) {
       t.error(err, 'create should not error');
-      db(driver._update_sql, { $level: 4 }, function(err) {
+      q(driver._update_sql, { $level: 4 }, function(err) {
         t.error(err, 'update should not error');
         migrate.ensure(function(err, level) {
           t.error(err, 'ensure should not error');
-          db(driver._current_sql, function(err, values) {
+          q(driver._current_sql, function(err, values) {
             t.error(err, 'get current should not error');
             t.equal(values[0][0], 4, 'should now be at level 4');
-            db(sql_check_table, function(err, tables) {
+            q(sql_check_table, function(err, tables) {
               t.notok(tables && tables.length > 0, 'table not created');
             });
           });

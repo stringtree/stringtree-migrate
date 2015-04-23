@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "tape": "^3.0.0",
+    "stringtree-migrate-driver-testsuite": "~1.0.0",
     "sql.js": "~0.2.21"
   },
   "license": "Apache-2.0",

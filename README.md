@@ -73,7 +73,7 @@ The aim of this software is to transparently and simply support the overwhelming
 
 ## Drivers
 
-A driver is a node module which implements the Stringtree Migrate driver API. This API is designed to keep the Stringtree Migrate code as simple and clean and free of database-specifics as possible. A detailed annotated example is given in _stringtree-migrate-driver-mysql_, but as an introduction, the API includes the following methods:
+A driver is a node module which implements the Stringtree Migrate driver API. This API is designed to keep the Stringtree Migrate code as simple and clean and free of database-specifics as possible. A detailed annotated example is given in [stringtree-migrate-driver-mysql](https://github.com/stringtree/stringtree-migrate-driver-mysql), but as an introduction, the API includes the following methods:
 
 ### Methods to manage a connection with the db
   Note that the two methods **open** and **close** form a set.
@@ -110,6 +110,7 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
 
 Stringtree Migrate does not need any configuration, other than setting up the correct driver and scripts to pass in to the migrator.
 
-### Related resources
+## Related resources
 
 * https://github.com/stringtree/stringtree-migrate-driver-mysql
+* https://github.com/stringtree/stringtree-migrate-driver-testsuite
