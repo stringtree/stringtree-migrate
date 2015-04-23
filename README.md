@@ -41,7 +41,7 @@ A simple, flexible, database-independent, way to manage automated schema updates
 
 I'm sure we've all been there. The latest version of the code needs a small change to the database schema.
 The code passes all its tests on the developer machines, and maybe even on the hand-patched CI box.
-But somehow that change had not yet been made on the live system by the time the code is deployed.
+But somehow that change has not yet been made on the live system by the time the code is deployed.
 
 Result: _everyone is upset_ :(
 
@@ -50,7 +50,7 @@ It's a common enough problem, and there are many solutions, but most of them hav
 * _Only works with a limited set of databases_
 * _Requires changes to the existing database schema to make it work_
 * _Requires all database access in the code to use a particular library or framework_
-* _Always needs network or file-system access for the list of changes_
+* _Needs a particular file-system layout or even network access for the list of changes_
 * _Models changes in an abstract language, unrelated to the native language of the database_
 * _Limited to 'generic' SQL with incomplete support for database-specific features_
 * _Bloated code with lots of dependencies and source code to wade through_
@@ -70,7 +70,7 @@ It's a common enough problem, and there are many solutions, but most of them hav
 The aim of this software is to transparently and simply support the overwhelmingly common scenario. This means that some 'features' have not been implemented, particularly if they would complicate the day-to-day business of making sure the database is up to date for the latest code.  
 
 * No support for 'downgrading' the database. This is a tricky process, risking loss of data and very rarely required in practice. This _may_ be added in the future.
-* No script processing, for example to substitute values at run-time. If you want your scripts to vary, do that in your own code _before_ passing the scripts to Stringtree Migrate.
+* No script processing, for example to substitute values at run-time. If you want your scripts to vary, remember that you are in charge of where and how the scripts are stored, so feel free to mess with them _before_ passing the scripts to Stringtree Migrate.
 
 ## Drivers
 
@@ -114,4 +114,5 @@ Stringtree Migrate does not need any configuration, other than setting up the co
 ## Related resources
 
 * https://github.com/stringtree/stringtree-migrate-driver-mysql
+* https://github.com/stringtree/stringtree-migrate-driver-sqljs
 * https://github.com/stringtree/stringtree-migrate-driver-testsuite
