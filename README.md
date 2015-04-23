@@ -108,9 +108,7 @@ A driver is a node module which implements the Stringtree Migrate driver API. Th
 ```
 ### Configuration
 
-The main Stringtree Migrate code does not need any configuration, other than setting up the correct driver and scripts to pass in to the migrator.
-
-At the moment, the built-in unit tests require a running mysql instance and some environment variables to tell the tests how to connect to the database. It is intended that both the mysql driver and its tests will soon be separated into their own module.
+Stringtree Migrate does not need any configuration, other than setting up the correct driver and scripts to pass in to the migrator.
 
 ### Related resources
 
