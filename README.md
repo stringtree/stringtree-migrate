@@ -8,7 +8,7 @@ A simple, flexible, database-independent, way to manage automated schema updates
 
 ## Usage Example:
 ```js
- var credentials = {
+ var config = {
    host: 'localhost', port: 3306,
    database: 'test', user: 'uu', password: 'pp'
  };
@@ -21,7 +21,7 @@ A simple, flexible, database-independent, way to manage automated schema updates
    }
  ];
 
- var driver = require('stringtree-migrate-driver-mysql')(credentials);
+ var driver = require('stringtree-migrate-driver-mysql')(config);
  var migrate = require('stringtree-migrate')(driver, scripts);
  ...
  // ensure database is at level 23 or greater
@@ -36,6 +36,7 @@ A simple, flexible, database-independent, way to manage automated schema updates
    .. code that needs the db ..;
  });
 ```
+
 ## The Problem
 
 I'm sure we've all been there. The latest version of the code needs a small change to the database schema.
