@@ -9,7 +9,6 @@ later
 
 maybe
 -----
-+ utility code to read steps from files
 + perform each level in a transaction?
 + dry-run option
 + downgrade
@@ -37,3 +36,5 @@ done
 2015-04-23
 + split off mysql driver to its own module
 + split off sql.js driver to its own module
+2015-04-24
++ utility code to read steps from files

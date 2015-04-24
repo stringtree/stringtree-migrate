@@ -1,6 +1,6 @@
 # stringtree-migrate
 
-A simple, flexible, database-independent, way to manage automated schema updates
+A simple, flexible, database-independent way to manage automated schema updates
 
 ## Installation
 
@@ -8,10 +8,6 @@ A simple, flexible, database-independent, way to manage automated schema updates
 
 ## Usage Example:
 ```js
- var config = {
-   host: 'localhost', port: 3306,
-   database: 'test', user: 'uu', password: 'pp'
- };
  var scripts = [
    { level: 1, up: "create table ugh ( aa int )" },
    { level: 23, up: [
@@ -21,9 +17,14 @@ A simple, flexible, database-independent, way to manage automated schema updates
    }
  ];
 
+ var config = {
+   host: 'localhost', port: 3306,
+   database: 'test', user: 'uu', password: 'pp'
+ };
+
  var driver = require('stringtree-migrate-driver-mysql')(config);
  var migrate = require('stringtree-migrate')(driver, scripts);
- ...
+
  // ensure database is at level 23 or greater
  migrate.ensure(23, function(err, level) {
    .. code that needs the db ..;
@@ -53,17 +54,20 @@ It's a common enough problem, and there are many solutions, but most of them hav
 * _Needs a particular file-system layout or even network access for the list of changes_
 * _Models changes in an abstract language, unrelated to the native language of the database_
 * _Limited to 'generic' SQL with incomplete support for database-specific features_
-* _Bloated code with lots of dependencies and source code to wade through_
+* _Bloated with lots of dependencies and source code to wade through_
 
-**Stringtree Migrate has none of these problems**
+**Stringtree Migrate has none of these drawbacks**
 
-* Database specifics are isolated in 'drivers'. Drivers are already available for several popular databases, more are being written and shared all the time, and creating a new driver is a straightforward job which any programmer can do.
-* Although it's common to store the details of which migrations have been performed in a database table, this is not mandatory. All that is required is that the driver code can ask and modify this data, so feel free to fork or create a driver that stores migration status on a file system, a remote server, in a different database, or wherever you like...
+## What Stringtree Migrate does
+
+Stringtree Migrate ensures that the right database updates have been applied before the code which needs them. The **ensure** method may be applied as often as you like, and will only run each update script at most once. Stringtree Migrate is deliberately simple, and delegates all the database specific bits to '_drivers_', leaving the core code free to make sure that exactly the correct updates are applied. 
+
+* Drivers are already available for several popular databases, more are being written and shared all the time, and creating a new driver is a straightforward job which any programmer can do.
+* Although it's common to store the details of which migrations have been performed in a database table, this is not mandatory. All that is required is that the driver code can read and modify this data, so feel free to fork or create a driver that stores migration status on a file system, a remote server, in a different database, or wherever you like...
 * Applying migration steps is just an api call, completely independent of how your application accesses the database. It can be called from the application code, or executed as a separate process before the app is started.
 * Migration steps are passed in to the migration api as an array. Where they live and how they are accessed is entirely up to you. steps can be loaded from a file system if you wish, but also stored in the source code of the application, fetched from a server, or anything else you can think of.
-* Each migration step is just a value (typically some text), handed over to the driver for execution. For many databases, the natural and obvious choice is the same SQL DDL which you would type into a database command line, but it's entirely up to your driver what is required, and how it is processed.
+* Each migration step is just a value (typically some text), handed over to the driver for execution. For many databases, the natural and obvious choice is the same DDL and SQL which you would type into a database command line, but it's entirely up to your driver what is required, and how it is processed.
 * Stringtree Migrate is designed to be as simple as it can be. Currently just one small source file which only depends on "async".
-
 
 ## What Stringtree Migrate _does not_ do
 
@@ -116,3 +120,5 @@ Stringtree Migrate does not need any configuration, other than setting up the co
 * https://github.com/stringtree/stringtree-migrate-driver-mysql
 * https://github.com/stringtree/stringtree-migrate-driver-sqljs
 * https://github.com/stringtree/stringtree-migrate-driver-testsuite
+* https://github.com/stringtree/stringtree-migrate-loader-files
+
