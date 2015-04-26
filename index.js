@@ -24,7 +24,7 @@ module.exports = function(driver, levels) {
           });
         }, function(err) {
           if (err) return done(err);
-          driver.update(script.level, done);
+          driver.update(level.level, done);
         });
       } else {
         done();
