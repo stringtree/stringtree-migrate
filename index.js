@@ -50,17 +50,19 @@ module.exports = function(driver, levels) {
     ensure: function ensure(target, next) {
       var self = this;
 
-      if (!driver) return complain(new Error('No db driver supplied. usage: require("stringtree-migrate")(db_driver, scripts);'), next);
-      if (!levels || 0 === levels.length) return complain(new Error('No migration scripts supplied. usage: require("stringtree-migrate")(db_driver, scripts);'), next);
       if ('function' === typeof(target)) {
         next = target;
         target = null;
       }
 
+      if (!driver) return complain(new Error('No db driver supplied. usage: require("stringtree-migrate")(db_driver, scripts);'), next);
+      if (!levels || 0 === levels.length) return complain(new Error('No migration scripts supplied. usage: require("stringtree-migrate")(db_driver, scripts);'), next);
+
       driver.open(function(err) {
         if (complain(err, next)) return;
 
         driver.check(function(err, present) {
+          if (complain(err, next)) return;
           if (!present) {
             driver.create(function(err) {
               if (err) {
