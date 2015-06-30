@@ -1,6 +1,6 @@
 {
   "name": "stringtree-migrate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Database-agnostic migration utility.",
   "main": "index.js",
   "scripts": {
@@ -19,6 +19,9 @@
   "repository": {
     "type" : "git",
     "url" : "http://github.com/stringtree/stringtree-migrate.git"
+  },
+  "publishConfig": {
+    "registry":"http://registry.npmjs.org/"
   },
   "author" : { 
     "name" : "Frank Carver",
