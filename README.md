@@ -38,6 +38,13 @@ A simple, flexible, database-independent way to manage automated schema updates
  });
 ```
 
+## API summary
+* migrate.ensure(next) -- ensure all patches are applied
+* migrate.ensure(level, next) -- ensure patches up to and including level have been applied
+* migrate.check(next) -- dry run. error if all patches have not already been applied
+* migrate.check(level, next) -- dry run. error if patches up to and including level have not already been applied
+
+
 ## The Problem
 
 I'm sure we've all been there. The latest version of the code needs a small change to the database schema.

@@ -160,3 +160,49 @@ test('(' + dname + ') no patches are applied if already beyond', function(t) {
     });
   });
 });
+
+test('(' + dname + ') check succeeds if up to date', function(t) {
+  t.plan(7);
+  setup(dfl_scripts, function(err, migrate) {
+    t.error(err, 'setup should not error');
+    q(driver._create_sql, function(err) {
+      t.error(err, 'create should not error');
+      q(driver._update_sql, { $level: 3 }, function(err) {
+        t.error(err, 'update should not error');
+        migrate.check(function(err, level) {
+          t.error(err, 'check should not error');
+          q(driver._current_sql, function(err, values) {
+            t.error(err, 'get current should not error');
+            t.equal(values[0][0], 3, 'should now be at level 3');
+            q(sql_check_table, function(err, tables) {
+              t.notok(tables && tables.length > 0, 'table not created');
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+test('(' + dname + ') check fails if not up to date', function(t) {
+  t.plan(7);
+  setup(dfl_scripts, function(err, migrate) {
+    t.error(err, 'setup should not error');
+    q(driver._create_sql, function(err) {
+      t.error(err, 'create should not error');
+      q(driver._update_sql, { $level: 2 }, function(err) {
+        t.error(err, 'update should not error');
+        migrate.check(function(err, level) {
+          t.ok(err, 'check should error');
+          q(driver._current_sql, function(err, values) {
+            t.error(err, 'get current should not error');
+            t.equal(values[0][0], 2, 'should still be at level 2');
+            q(sql_check_table, function(err, tables) {
+              t.notok(tables && tables.length > 0, 'table not created');
+            });
+          });
+        });
+      });
+    });
+  });
+});
